@@ -13,8 +13,7 @@ find_package(OpenCV REQUIRED)
 
 include_directories(${catkin_INCLUDE_DIRS})
 
-cs_add_library(vins_estimator
-    src/estimator_node.cpp
+cs_add_library(vins_estimator_lib
     src/parameters.cpp
     src/estimator.cpp
     src/feature_manager.cpp
@@ -31,10 +30,20 @@ cs_add_library(vins_estimator
     src/initial/initial_ex_rotation.cpp
 )
 
-target_link_libraries(vins_estimator 
+target_link_libraries(vins_estimator_lib
   ${catkin_LIBRARIES} 
   ${OpenCV_LIBS}
 ) 
+
+cs_add_executable(vins_estimator
+   src/estimator_node.cpp
+)
+
+target_link_libraries(vins_estimator
+  vins_estimator_lib
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+)
 
 cs_install()
 cs_export()

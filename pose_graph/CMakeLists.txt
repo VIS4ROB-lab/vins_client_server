@@ -13,8 +13,7 @@ find_package(OpenCV)
 
 include_directories(${catkin_INCLUDE_DIRS})
 
-cs_add_library(pose_graph
-  src/pose_graph_node.cpp
+cs_add_library(pose_graph_lib
   src/pose_graph.cpp
   src/keyframe.cpp
   src/utility/CameraPoseVisualization.cpp
@@ -29,10 +28,20 @@ cs_add_library(pose_graph
   src/ThirdParty/VocabularyBinary.cpp
 )
 
-target_link_libraries(pose_graph 
+target_link_libraries(pose_graph_lib
   ${catkin_LIBRARIES}  
   ${OpenCV_LIBS}
 ) 
+
+cs_add_executable(pose_graph
+  src/pose_graph_node.cpp
+)
+
+target_link_libraries(pose_graph
+  pose_graph_lib
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+)
 
 cs_install()
 cs_export()

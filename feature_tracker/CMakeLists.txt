@@ -15,16 +15,26 @@ include_directories(
 )
 
 
-cs_add_library(feature_tracker
-  src/feature_tracker_node.cpp
+cs_add_library(feature_tracker_lib
   src/parameters.cpp
   src/feature_tracker.cpp
 )  
 
-target_link_libraries(feature_tracker
+target_link_libraries(feature_tracker_lib
   ${catkin_LIBRARIES} 
   ${OpenCV_LIBS}
 )
+
+cs_add_executable(feature_tracker
+  src/feature_tracker_node.cpp
+)
+
+target_link_libraries(feature_tracker
+  feature_tracker_lib
+  ${catkin_LIBRARIES} 
+  ${OpenCV_LIBS}
+)
+
 
 cs_install()
 cs_export()

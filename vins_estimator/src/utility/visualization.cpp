@@ -380,12 +380,14 @@ void pubKeyframe(const Estimator &estimator)
 
                 int imu_i = it_per_id.start_frame;
                 Vector3d pts_i = it_per_id.feature_per_frame[0].point * it_per_id.estimated_depth;
-                Vector3d w_pts_i = estimator.Rs[imu_i] * (estimator.ric[0] * pts_i + estimator.tic[0])
-                                      + estimator.Ps[imu_i];
+//                Vector3d w_pts_i = estimator.Rs[imu_i] * (estimator.ric[0] * pts_i + estimator.tic[0])
+//                                      + estimator.Ps[imu_i];
                 geometry_msgs::Point32 p;
-                p.x = w_pts_i(0);
-                p.y = w_pts_i(1);
-                p.z = w_pts_i(2);
+
+                // Directly publish the points in the camera frame
+                p.x = pts_i(0);//w_pts_i(0);
+                p.y = pts_i(1);//w_pts_i(1);
+                p.z = pts_i(2);//w_pts_i(2);
                 point_cloud.points.push_back(p);
 
                 int imu_j = WINDOW_SIZE - 2 - it_per_id.start_frame;

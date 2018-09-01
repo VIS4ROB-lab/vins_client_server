@@ -74,13 +74,14 @@ KeyFrame::KeyFrame(double _time_stamp, int _index, Vector3d &_vio_T_w_i, Matrix3
 
 void KeyFrame::computeWindowBRIEFPoint()
 {
-  brisk::BriskDescriptorExtractor brisk_extractor(true, true,
+  brisk::BriskDescriptorExtractor brisk_extractor(true, false,
         brisk::BriskDescriptorExtractor::briskV2);
   //BriefExtractor extractor(BRIEF_PATTERN_FILE.c_str());
 	for(int i = 0; i < (int)point_2d_uv.size(); i++)
 	{
 	    cv::KeyPoint key;
 	    key.pt = point_2d_uv[i];
+      key.octave = 0;
 	    window_keypoints.push_back(key);
   }
   brisk_extractor.compute(image, window_keypoints, window_descriptors_);

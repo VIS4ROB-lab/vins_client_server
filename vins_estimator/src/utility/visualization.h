@@ -11,6 +11,7 @@
 #include <nav_msgs/Path.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/TransformStamped.h>
 #include <visualization_msgs/Marker.h>
 #include <tf/transform_broadcaster.h>
 #include "CameraPoseVisualization.h"
@@ -19,7 +20,7 @@
 #include "../parameters.h"
 #include <fstream>
 
-extern ros::Publisher pub_odometry;
+extern ros::Publisher pub_odometry, pub_odom_pose;
 extern ros::Publisher pub_path, pub_pose;
 extern ros::Publisher pub_cloud, pub_map;
 extern ros::Publisher pub_key_poses;

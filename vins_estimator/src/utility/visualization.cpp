@@ -2,7 +2,7 @@
 
 using namespace ros;
 using namespace Eigen;
-ros::Publisher pub_odometry, pub_latest_odometry;
+ros::Publisher pub_odometry, pub_latest_odometry, pub_odom_pose;
 ros::Publisher pub_path, pub_relo_path;
 ros::Publisher pub_point_cloud, pub_margin_cloud;
 ros::Publisher pub_key_poses;
@@ -26,6 +26,7 @@ void registerPub(ros::NodeHandle &n)
     pub_path = n.advertise<nav_msgs::Path>("path", 1000);
     pub_relo_path = n.advertise<nav_msgs::Path>("relocalization_path", 1000);
     pub_odometry = n.advertise<nav_msgs::Odometry>("odometry", 1000);
+    pub_odom_pose = n.advertise<geometry_msgs::TransformStamped>("transform",1000);
     pub_point_cloud = n.advertise<sensor_msgs::PointCloud>("point_cloud", 1000);
     pub_margin_cloud = n.advertise<sensor_msgs::PointCloud>("history_cloud", 1000);
     pub_key_poses = n.advertise<visualization_msgs::Marker>("key_poses", 1000);
@@ -152,6 +153,19 @@ void pubOdometry(const Estimator &estimator, const std_msgs::Header &header)
         relo_path.header.frame_id = "world";
         relo_path.poses.push_back(pose_stamped);
         pub_relo_path.publish(relo_path);
+    
+        geometry_msgs::TransformStamped msg_T_W_I;
+        msg_T_W_I.header = header;
+        msg_T_W_I.header.frame_id = "world0";
+        msg_T_W_I.child_frame_id = "odom0";
+        msg_T_W_I.transform.translation.x = estimator.Ps[WINDOW_SIZE].x();
+        msg_T_W_I.transform.translation.y = estimator.Ps[WINDOW_SIZE].y();
+        msg_T_W_I.transform.translation.z = estimator.Ps[WINDOW_SIZE].z();
+        msg_T_W_I.transform.rotation.x = tmp_Q.x();
+        msg_T_W_I.transform.rotation.y = tmp_Q.y();
+        msg_T_W_I.transform.rotation.z = tmp_Q.z();
+        msg_T_W_I.transform.rotation.w = tmp_Q.w();
+        pub_odom_pose.publish(msg_T_W_I);
 
         // write result to file
         ofstream foutC(VINS_RESULT_PATH, ios::app);

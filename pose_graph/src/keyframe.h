@@ -4,7 +4,7 @@
 #include <eigen3/Eigen/Dense>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/eigen.hpp>
-#include <brisk/brisk-descriptor-extractor.h>
+#include <brisk/brisk.h>
 #include "camodocal/camera_models/CameraFactory.h"
 #include "camodocal/camera_models/CataCamera.h"
 #include "camodocal/camera_models/PinholeCamera.h"
@@ -16,7 +16,7 @@
 
 #include <comm_msgs/keyframe.h>
 
-#define MIN_LOOP_NUM 25
+//#define MIN_LOOP_NUM 25
 
 using namespace Eigen;
 using namespace std;
@@ -43,7 +43,7 @@ public:
 //       vector<cv::KeyPoint> &_keypoints, vector<cv::KeyPoint> &_keypoints_norm, vector<BRIEF::bitset> &_brief_descriptors);
 //	bool findConnection(KeyFrame* old_kf);
 	void computeWindowBRIEFPoint();
-//	void computeBRIEFPoint();
+  void computeBRIEFPoint();
 	//void extractBrief();
 //	int HammingDis(const BRIEF::bitset &a, const BRIEF::bitset &b);
 //	bool searchInAera(const BRIEF::bitset window_descriptor,
@@ -75,6 +75,7 @@ public:
 //	double getLoopRelativeYaw();
 //	Eigen::Quaterniond getLoopRelativeQ();
 
+
 	double time_stamp; 
 	int index;
 	int local_index;
@@ -84,14 +85,13 @@ public:
 	Eigen::Matrix3d R_w_i;
 	Eigen::Vector3d origin_vio_T;		
 	Eigen::Matrix3d origin_vio_R;
-	cv::Mat image;
+  cv::Mat image;
 	cv::Mat thumbnail;
 	vector<cv::Point3f> point_3d; 
 	vector<cv::Point2f> point_2d_uv;
 	vector<cv::Point2f> point_2d_norm;
 	vector<double> point_id;
 	vector<cv::KeyPoint> keypoints;
-	vector<cv::KeyPoint> keypoints_norm;
 	vector<cv::KeyPoint> window_keypoints;
   cv::Mat window_descriptors_;
   cv::Mat descriptors_;

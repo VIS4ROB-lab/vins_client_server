@@ -230,6 +230,18 @@ void PoseGraph::addKeyFrame(KeyFrame* cur_kf, bool flag_detect_loop)
   odom.pose.pose.orientation.y = q_W_S.y();
   odom.pose.pose.orientation.z = q_W_S.z();
   keyframe_msg.odometry = odom;
+  // Create an image combining the window and normal descriptors
+  cv::Mat combined_descriptor(cur_kf->window_descriptors_.rows +
+    cur_kf->descriptors_.rows, cur_kf->window_descriptors_.cols,
+    cur_kf->descriptors_.type());
+  cv::imwrite("/home/karrerm/window_descr.png", cur_kf->window_descriptors_);
+  cv::imwrite("/home/karrerm/additional_descr.png", cur_kf->descriptors_);
+  cur_kf->window_descriptors_.rowRange(0, cur_kf->window_descriptors_.rows-1).
+      copyTo(combined_descriptor.rowRange(0, cur_kf->window_descriptors_.rows-1));
+  cur_kf->descriptors_.rowRange(0, cur_kf->descriptors_.rows-1).copyTo(
+        combined_descriptor.rowRange(cur_kf->window_descriptors_.rows,
+         cur_kf->window_descriptors_.rows + cur_kf->descriptors_.rows - 1));
+cv::imwrite("/home/karrerm/combined_descr.png", combined_descriptor);
   sensor_msgs::fillImage(keyframe_msg.keyPtsDescriptors,
     sensor_msgs::image_encodings::MONO8,
     cur_kf->window_descriptors_.rows, cur_kf->window_descriptors_.cols,
@@ -245,25 +257,41 @@ void PoseGraph::addKeyFrame(KeyFrame* cur_kf, bool flag_detect_loop)
     rit++;
   }
 
-  keyframe_msg.landmarks.reserve(cur_kf->point_2d_uv.size());
-  keyframe_msg.keyPts.reserve(cur_kf->point_2d_uv.size());
-  keyframe_msg.numKeyPts = cur_kf->point_2d_uv.size();
-  for (size_t i = 0; i < cur_kf->point_2d_uv.size(); ++i) {
+  const size_t num_total_keypoints = combined_descriptor.rows;
+
+  keyframe_msg.landmarks.reserve(num_total_keypoints);
+  keyframe_msg.keyPts.reserve(num_total_keypoints);
+  keyframe_msg.numKeyPts = num_total_keypoints;
+  size_t point_idx = 0;
+  for (size_t i = 0; i < cur_kf->window_keypoints.size(); ++i) {
+    while (cur_kf->point_2d_uv[point_idx].x != cur_kf->window_keypoints[i].pt.x ||
+           cur_kf->point_2d_uv[point_idx].y != cur_kf->window_keypoints[i].pt.y) {
+      ++point_idx;
+    }
     comm_msgs::landmark tmp_lm;
     cv::Point3f tmp_point3d = cur_kf->point_3d[i];
     tmp_lm.x = tmp_point3d.x;
     tmp_lm.y = tmp_point3d.y;
     tmp_lm.z = tmp_point3d.z;
     tmp_lm.index = i;
-    keyframe_msg.landmarks.push_back(tmp_lm);
 
     comm_msgs::keypoint tmp_kp;
     cv::Point2f tmp_point2d = cur_kf->point_2d_uv[i];
     tmp_kp.x = tmp_point2d.x;
     tmp_kp.y = tmp_point2d.y;
+
+    keyframe_msg.landmarks.push_back(tmp_lm);
     keyframe_msg.keyPts.push_back(tmp_kp);
+    ++point_idx;
   }
 
+  for (size_t i = 0; i < cur_kf->keypoints.size(); ++i) {
+    comm_msgs::keypoint tmp_kp;
+    cv::Point2f tmp_point2d = cur_kf->keypoints[i].pt;
+    tmp_kp.x = tmp_point2d.x;
+    tmp_kp.y = tmp_point2d.y;
+    keyframe_msg.keyPts.push_back(tmp_kp);
+  }
   pub_keyframe_.publish(keyframe_msg);
 	keyframelist.push_back(cur_kf);
 //    publish();

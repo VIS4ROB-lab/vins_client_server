@@ -13,7 +13,7 @@ static void reduceVector(vector<Derived> &v, vector<uchar> status)
 // create keyframe online
 KeyFrame::KeyFrame(double _time_stamp, int _index, Vector3d &_vio_T_w_i, Matrix3d &_vio_R_w_i, cv::Mat &_image,
 		           vector<cv::Point3f> &_point_3d, vector<cv::Point2f> &_point_2d_uv, vector<cv::Point2f> &_point_2d_norm,
-		           vector<double> &_point_id, int _sequence)
+               vector<double> &_point_id, int _sequence)
 {
 	time_stamp = _time_stamp;
 	index = _index;
@@ -23,21 +23,23 @@ KeyFrame::KeyFrame(double _time_stamp, int _index, Vector3d &_vio_T_w_i, Matrix3
 	R_w_i = vio_R_w_i;
 	origin_vio_T = vio_T_w_i;		
 	origin_vio_R = vio_R_w_i;
-	image = _image.clone();
+  image = _image.clone();
 	cv::resize(image, thumbnail, cv::Size(80, 60));
 	point_3d = _point_3d;
 	point_2d_uv = _point_2d_uv;
 	point_2d_norm = _point_2d_norm;
 	point_id = _point_id;
+
 //	has_loop = false;
 //	loop_index = -1;
 //	has_fast_point = false;
 //	loop_info << 0, 0, 0, 0, 0, 0, 0, 0;
 	sequence = _sequence;
+  computeBRIEFPoint();
   computeWindowBRIEFPoint();
-//	computeBRIEFPoint();
-	if(!DEBUG_IMAGE)
-		image.release();
+
+  if(!DEBUG_IMAGE)
+    image.release();
 }
 
 //// load previous keyframe
@@ -71,11 +73,10 @@ KeyFrame::KeyFrame(double _time_stamp, int _index, Vector3d &_vio_T_w_i, Matrix3
 //  brief_descriptors = _brief_descriptors;
 //}
 
-
 void KeyFrame::computeWindowBRIEFPoint()
 {
   brisk::BriskDescriptorExtractor brisk_extractor(true, false,
-        brisk::BriskDescriptorExtractor::briskV2);
+  brisk::BriskDescriptorExtractor::briskV2);
   //BriefExtractor extractor(BRIEF_PATTERN_FILE.c_str());
 	for(int i = 0; i < (int)point_2d_uv.size(); i++)
 	{
@@ -88,33 +89,16 @@ void KeyFrame::computeWindowBRIEFPoint()
 //	extractor(image, window_keypoints, window_brief_descriptors);
 }
 
-//void KeyFrame::computeBRIEFPoint()
-//{
-//	BriefExtractor extractor(BRIEF_PATTERN_FILE.c_str());
-//	const int fast_th = 20; // corner detector response threshold
-//	if(1)
-//		cv::FAST(image, keypoints, fast_th, true);
-//	else
-//	{
-//		vector<cv::Point2f> tmp_pts;
-//		cv::goodFeaturesToTrack(image, tmp_pts, 500, 0.01, 10);
-//		for(int i = 0; i < (int)tmp_pts.size(); i++)
-//		{
-//		    cv::KeyPoint key;
-//		    key.pt = tmp_pts[i];
-//		    keypoints.push_back(key);
-//		}
-//	}
-//	extractor(image, keypoints, brief_descriptors);
-//	for (int i = 0; i < (int)keypoints.size(); i++)
-//	{
-//		Eigen::Vector3d tmp_p;
-//		m_camera->liftProjective(Eigen::Vector2d(keypoints[i].pt.x, keypoints[i].pt.y), tmp_p);
-//		cv::KeyPoint tmp_norm;
-//		tmp_norm.pt = cv::Point2f(tmp_p.x()/tmp_p.z(), tmp_p.y()/tmp_p.z());
-//		keypoints_norm.push_back(tmp_norm);
-//	}
-//}
+void KeyFrame::computeBRIEFPoint()
+{
+  brisk::ScaleSpaceFeatureDetector<brisk::HarrisScoreCalculator>
+      brisk_detector(0, 10.0, 400.0, 400);
+  keypoints.clear();
+  brisk_detector.detect(image, keypoints);
+  brisk::BriskDescriptorExtractor brisk_extractor(true, false,
+  brisk::BriskDescriptorExtractor::briskV2);
+  brisk_extractor.compute(image, keypoints, descriptors_);
+}
 
 //void BriefExtractor::operator() (const cv::Mat &im, vector<cv::KeyPoint> &keys, vector<BRIEF::bitset> &descriptors) const
 //{

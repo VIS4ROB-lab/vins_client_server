@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mssse3")
 find_package(catkin_simple REQUIRED)
 catkin_simple(ALL_DEPS_REQUIRED)
 
-find_package(OpenCV 3.4 REQUIRED)
+#find_package(OpenCV 3.4 REQUIRED)
 
 include_directories(${catkin_INCLUDE_DIRS})
 

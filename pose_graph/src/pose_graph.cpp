@@ -234,18 +234,19 @@ void PoseGraph::addKeyFrame(KeyFrame* cur_kf, bool flag_detect_loop)
   cv::Mat combined_descriptor(cur_kf->window_descriptors_.rows +
     cur_kf->descriptors_.rows, cur_kf->window_descriptors_.cols,
     cur_kf->descriptors_.type());
-  cv::imwrite("/home/karrerm/window_descr.png", cur_kf->window_descriptors_);
-  cv::imwrite("/home/karrerm/additional_descr.png", cur_kf->descriptors_);
-  cur_kf->window_descriptors_.rowRange(0, cur_kf->window_descriptors_.rows-1).
-      copyTo(combined_descriptor.rowRange(0, cur_kf->window_descriptors_.rows-1));
-  cur_kf->descriptors_.rowRange(0, cur_kf->descriptors_.rows-1).copyTo(
-        combined_descriptor.rowRange(cur_kf->window_descriptors_.rows,
-         cur_kf->window_descriptors_.rows + cur_kf->descriptors_.rows - 1));
-cv::imwrite("/home/karrerm/combined_descr.png", combined_descriptor);
+  cur_kf->window_descriptors_.copyTo(combined_descriptor.rowRange(
+      0, cur_kf->window_descriptors_.rows));
+  cur_kf->descriptors_.copyTo(combined_descriptor.rowRange(
+      cur_kf->window_descriptors_.rows, cur_kf->window_descriptors_.rows +
+      cur_kf->descriptors_.rows));
   sensor_msgs::fillImage(keyframe_msg.keyPtsDescriptors,
     sensor_msgs::image_encodings::MONO8,
-    cur_kf->window_descriptors_.rows, cur_kf->window_descriptors_.cols,
-    cur_kf->window_descriptors_.step.buf[0], cur_kf->window_descriptors_.data);
+    combined_descriptor.rows, combined_descriptor.cols,
+    combined_descriptor.step.buf[0], combined_descriptor.data);
+//  sensor_msgs::fillImage(keyframe_msg.debugImage,
+//    sensor_msgs::image_encodings::MONO8,
+//    cur_kf->image.rows, cur_kf->image.cols,
+//    cur_kf->image.step.buf[0], cur_kf->image.data);
   list<KeyFrame*>::reverse_iterator rit = keyframelist.rbegin();
   for (int i = 0; i < 4; i++) {
     if (rit == keyframelist.rend())
@@ -264,19 +265,29 @@ cv::imwrite("/home/karrerm/combined_descr.png", combined_descriptor);
   keyframe_msg.numKeyPts = num_total_keypoints;
   size_t point_idx = 0;
   for (size_t i = 0; i < cur_kf->window_keypoints.size(); ++i) {
-    while (cur_kf->point_2d_uv[point_idx].x != cur_kf->window_keypoints[i].pt.x ||
-           cur_kf->point_2d_uv[point_idx].y != cur_kf->window_keypoints[i].pt.y) {
+    while (true) {
+      if ((cur_kf->point_2d_uv[point_idx].x ==
+          cur_kf->window_keypoints[i].pt.x) &&
+          (cur_kf->point_2d_uv[point_idx].y ==
+           cur_kf->window_keypoints[i].pt.y)) {
+        break;
+      }
       ++point_idx;
     }
     comm_msgs::landmark tmp_lm;
-    cv::Point3f tmp_point3d = cur_kf->point_3d[i];
+    Eigen::Vector3d landmark (
+          cur_kf->point_2d_norm[point_idx].x,
+          cur_kf->point_2d_norm[point_idx].y,
+          1.0);
+    landmark *= cur_kf->point_3d[point_idx].z;
+    cv::Point3f tmp_point3d = cur_kf->point_3d[point_idx];
     tmp_lm.x = tmp_point3d.x;
     tmp_lm.y = tmp_point3d.y;
     tmp_lm.z = tmp_point3d.z;
     tmp_lm.index = i;
 
     comm_msgs::keypoint tmp_kp;
-    cv::Point2f tmp_point2d = cur_kf->point_2d_uv[i];
+    cv::Point2f tmp_point2d = cur_kf->window_keypoints[i].pt;
     tmp_kp.x = tmp_point2d.x;
     tmp_kp.y = tmp_point2d.y;
 

@@ -28,6 +28,12 @@ KeyFrame::KeyFrame(double _time_stamp, int _index, Vector3d &_vio_T_w_i, Matrix3
 	point_3d = _point_3d;
 	point_2d_uv = _point_2d_uv;
 	point_2d_norm = _point_2d_norm;
+
+  for (size_t i = 0; i < point_2d_norm.size(); ++i) {
+    Eigen::Vector3d point(point_2d_norm[i].x, point_2d_norm[i].y, 1.0);
+    point = point*point_3d[i].z;
+    point_3d[i] = cv::Point3f(point[0], point[1], point[2]);
+  }
 	point_id = _point_id;
 
 //	has_loop = false;
@@ -37,6 +43,7 @@ KeyFrame::KeyFrame(double _time_stamp, int _index, Vector3d &_vio_T_w_i, Matrix3
 	sequence = _sequence;
   computeBRIEFPoint();
   computeWindowBRIEFPoint();
+
 
   if(!DEBUG_IMAGE)
     image.release();
@@ -92,7 +99,7 @@ void KeyFrame::computeWindowBRIEFPoint()
 void KeyFrame::computeBRIEFPoint()
 {
   brisk::ScaleSpaceFeatureDetector<brisk::HarrisScoreCalculator>
-      brisk_detector(0, 10.0, 400.0, 400);
+      brisk_detector(0, 10.0, 300.0, 200);
   keypoints.clear();
   brisk_detector.detect(image, keypoints);
   brisk::BriskDescriptorExtractor brisk_extractor(true, false,

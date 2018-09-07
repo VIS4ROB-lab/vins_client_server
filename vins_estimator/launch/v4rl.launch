@@ -10,6 +10,8 @@
     <node name="vins_estimator" pkg="vins_estimator" type="vins_estimator" output="screen">
        <param name="config_file" type="string" value="$(arg config_path)" />
        <param name="vins_folder" type="string" value="$(arg vins_path)" />
+       <remap from="features" to="feature_tracker/feature" />
+       <remap from="feature_restart" to="feature_tracker/feature_restart" />
     </node>
 
     <node name="pose_graph" pkg="pose_graph" type="pose_graph" output="screen">
@@ -18,6 +20,9 @@
         <param name="visualization_shift_y" type="int" value="0" />
         <param name="skip_cnt" type="int" value="0" />
         <param name="skip_dis" type="double" value="0" />
+        <remap from="keyframe_pose" to="vins_estimator/keyframe_pose" />
+        <remap from="extrinsic" to="vins_estimator/extrinsic" />
+        <remap from="keyframe_point" to="vins_estimator/keyframe_point" />
     </node>
 
 </launch>

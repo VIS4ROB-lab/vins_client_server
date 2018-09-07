@@ -234,11 +234,15 @@ void PoseGraph::addKeyFrame(KeyFrame* cur_kf, bool flag_detect_loop)
   cv::Mat combined_descriptor(cur_kf->window_descriptors_.rows +
     cur_kf->descriptors_.rows, cur_kf->window_descriptors_.cols,
     cur_kf->descriptors_.type());
-  cur_kf->window_descriptors_.copyTo(combined_descriptor.rowRange(
-      0, cur_kf->window_descriptors_.rows));
-  cur_kf->descriptors_.copyTo(combined_descriptor.rowRange(
-      cur_kf->window_descriptors_.rows, cur_kf->window_descriptors_.rows +
-      cur_kf->descriptors_.rows));
+  if (cur_kf->window_descriptors_.rows > 0) {
+    cur_kf->window_descriptors_.copyTo(combined_descriptor.rowRange(
+        0, cur_kf->window_descriptors_.rows));
+  }
+  if (cur_kf->descriptors_.rows > 0) {
+    cur_kf->descriptors_.copyTo(combined_descriptor.rowRange(
+        cur_kf->window_descriptors_.rows, cur_kf->window_descriptors_.rows +
+        cur_kf->descriptors_.rows));
+  }
   sensor_msgs::fillImage(keyframe_msg.keyPtsDescriptors,
     sensor_msgs::image_encodings::MONO8,
     combined_descriptor.rows, combined_descriptor.cols,

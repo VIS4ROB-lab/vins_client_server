@@ -98,10 +98,18 @@ void KeyFrame::computeWindowBRIEFPoint()
 
 void KeyFrame::computeBRIEFPoint()
 {
-  brisk::ScaleSpaceFeatureDetector<brisk::HarrisScoreCalculator>
-      brisk_detector(0, 10.0, 300.0, 200);
+//  brisk::ScaleSpaceFeatureDetector<brisk::HarrisScoreCalculator>
+//      brisk_detector(0, 10.0, 300.0, 200);
   keypoints.clear();
-  brisk_detector.detect(image, keypoints);
+  vector<cv::Point2f> tmp_pts;
+  cv::goodFeaturesToTrack(image, tmp_pts, 500, 0.01, 10);
+  for (size_t i = 0; i < tmp_pts.size(); ++i) {
+    cv::KeyPoint key;
+    key.pt = tmp_pts[i];
+    key.octave = 0;
+    keypoints.push_back(key);
+  }
+  // brisk_detector.detect(image, keypoints);
   brisk::BriskDescriptorExtractor brisk_extractor(true, false,
   brisk::BriskDescriptorExtractor::briskV2);
   brisk_extractor.compute(image, keypoints, descriptors_);

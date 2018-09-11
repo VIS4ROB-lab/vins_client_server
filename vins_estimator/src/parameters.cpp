@@ -23,6 +23,11 @@ std::string IMU_TOPIC;
 double ROW, COL;
 double TD, TR;
 
+// Frame names
+std::string ORIGIN_FRAME_NAME;
+std::string CAMERA_FRAME_NAME;
+std::string IMU_FRAME_NAME;
+
 template <typename T>
 T readParam(ros::NodeHandle &n, std::string name)
 {
@@ -43,6 +48,10 @@ void readParameters(ros::NodeHandle &n)
 {
     std::string config_file;
     config_file = readParam<std::string>(n, "config_file");
+    ORIGIN_FRAME_NAME = readParam<std::string>(n, "origin_frame_name");
+    CAMERA_FRAME_NAME = readParam<std::string>(n, "camera_frame_name");
+    IMU_FRAME_NAME = readParam<std::string>(n, "imu_frame_name");
+    
     cv::FileStorage fsSettings(config_file, cv::FileStorage::READ);
     if(!fsSettings.isOpened())
     {

@@ -38,6 +38,10 @@ extern int ESTIMATE_TD;
 extern int ROLLING_SHUTTER;
 extern double ROW, COL;
 
+// Frame names for publishing
+extern std::string ORIGIN_FRAME_NAME;
+extern std::string CAMERA_FRAME_NAME;
+extern std::string IMU_FRAME_NAME;
 
 void readParameters(ros::NodeHandle &n);
 

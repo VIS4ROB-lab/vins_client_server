@@ -214,7 +214,7 @@ void PoseGraph::addKeyFrame(KeyFrame* cur_kf, bool flag_detect_loop)
   comm_msgs::keyframe keyframe_msg;
   keyframe_msg.header.stamp = time_obj_.fromSec(cur_kf->time_stamp);
   keyframe_msg.frameId = cur_kf->index;
-  keyframe_msg.agentId = 0;
+  keyframe_msg.agentId = AGENT_ID;
 
   nav_msgs::Odometry odom;
   odom.header.stamp = time_obj_.fromSec(cur_kf->time_stamp);

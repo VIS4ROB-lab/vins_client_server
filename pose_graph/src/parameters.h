@@ -24,5 +24,5 @@ extern int COL;
 extern std::string VINS_RESULT_PATH;
 extern int DEBUG_IMAGE;
 extern int FAST_RELOCALIZATION;
-
+extern int AGENT_ID;
 

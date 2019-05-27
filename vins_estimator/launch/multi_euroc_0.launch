@@ -26,6 +26,7 @@
         <param name="visualization_shift_y" type="int" value="0" />
         <param name="skip_cnt" type="int" value="0" />
         <param name="skip_dis" type="double" value="0" />
+        <param name="num_odom_connections" type="int" value="3" />
         <param name="agent_id" type="int" value="$(arg agent_id)"/>
 
         <remap from="pose_graph_$(arg agent_id)/keyframe_pose" to="vins_estimator_$(arg agent_id)/keyframe_pose" />

@@ -30,5 +30,5 @@ $ wstool up -j8
 Finally, build the package:
 ```
 $ cd ~/catkin_ws
-$ catkin build pcl_fusion
+$ catkin build vins_client_server
 ```  

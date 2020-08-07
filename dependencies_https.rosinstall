@@ -1,4 +1,5 @@
 - git: {local-name: catkin_simple, uri: 'https://github.com/catkin/catkin_simple.git'}
+- git: {local-name: ceres_catkin, uri: 'https://github.com/ethz-asl/ceres_catkin.git'}
 - git: {local-name: eigen_catkin, uri: 'https://github.com/ethz-asl/eigen_catkin.git'}
 - git: {local-name: eigen_checks, uri: 'https://github.com/ethz-asl/eigen_checks.git'}
 - git: {local-name: glog_catkin, uri: 'https://github.com/ethz-asl/glog_catkin.git'}

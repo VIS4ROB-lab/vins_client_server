@@ -6,7 +6,13 @@ If you use this VINS-Mono version in your academic work, please cite the origina
 _"Multi-robot Coordination with Agent-Server Architecture for Autonomous Navigation in Partially Unknown Environments"_ by Luca Bartolomei, Marco Karrer and Margarita Chli, IROS 2020.
 
 ## Installation  
-In order to install this VINS-Mono version, follow these steps (tested under Ubuntu 18.04 LTS, ROS Melodic). First, create a catkin workspace:
+In order to install this VINS-Mono version, follow these steps (tested under Ubuntu 18.04 LTS, ROS Melodic).
+First, install these dependencies:
+```
+$ sudo apt-get install ros-melodic-cv-bridge ros-melodic-tf ros-melodic-message-filters ros-melodic-image-transport
+```  
+
+Then, create a catkin workspace:
 ```
 $ mkdir -p catkin_ws/src
 $ cd catkin_ws
@@ -32,3 +38,5 @@ Finally, build the package:
 $ cd ~/catkin_ws
 $ catkin build vins_client_server
 ```  
+
+For usage and setting of the parameters, we refer to the [original VINS-Mono repository](https://github.com/HKUST-Aerial-Robotics/VINS-Mono).

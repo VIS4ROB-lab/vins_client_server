@@ -13,7 +13,7 @@ static void reduceVector(vector<Derived> &v, vector<uchar> status)
 // create keyframe online
 KeyFrame::KeyFrame(double _time_stamp, int _index, Vector3d &_vio_T_w_i, Matrix3d &_vio_R_w_i, cv::Mat &_image,
 		           vector<cv::Point3f> &_point_3d, vector<cv::Point2f> &_point_2d_uv, vector<cv::Point2f> &_point_2d_norm,
-               vector<double> &_point_id, int _sequence)
+               vector<double> &_point_id, int _sequence, brisk::BriskDescriptorExtractor &_brisk_extractor)
 {
 	time_stamp = _time_stamp;
 	index = _index;
@@ -41,9 +41,8 @@ KeyFrame::KeyFrame(double _time_stamp, int _index, Vector3d &_vio_T_w_i, Matrix3
 //	has_fast_point = false;
 //	loop_info << 0, 0, 0, 0, 0, 0, 0, 0;
 	sequence = _sequence;
-  computeBRIEFPoint();
-  computeWindowBRIEFPoint();
-
+  computeBRIEFPoint(_brisk_extractor);
+  computeWindowBRIEFPoint(_brisk_extractor);
 
   if(!DEBUG_IMAGE)
     image.release();
@@ -80,11 +79,8 @@ KeyFrame::KeyFrame(double _time_stamp, int _index, Vector3d &_vio_T_w_i, Matrix3
 //  brief_descriptors = _brief_descriptors;
 //}
 
-void KeyFrame::computeWindowBRIEFPoint()
+void KeyFrame::computeWindowBRIEFPoint(brisk::BriskDescriptorExtractor &brisk_extractor)
 {
-  brisk::BriskDescriptorExtractor brisk_extractor(true, false,
-  brisk::BriskDescriptorExtractor::briskV2);
-  //BriefExtractor extractor(BRIEF_PATTERN_FILE.c_str());
 	for(int i = 0; i < (int)point_2d_uv.size(); i++)
 	{
 	    cv::KeyPoint key;
@@ -93,10 +89,9 @@ void KeyFrame::computeWindowBRIEFPoint()
 	    window_keypoints.push_back(key);
   }
   brisk_extractor.compute(image, window_keypoints, window_descriptors_);
-//	extractor(image, window_keypoints, window_brief_descriptors);
 }
 
-void KeyFrame::computeBRIEFPoint()
+void KeyFrame::computeBRIEFPoint(brisk::BriskDescriptorExtractor &brisk_extractor)
 {
 //  brisk::ScaleSpaceFeatureDetector<brisk::HarrisScoreCalculator>
 //      brisk_detector(0, 10.0, 300.0, 200);
@@ -109,9 +104,7 @@ void KeyFrame::computeBRIEFPoint()
     key.octave = 0;
     keypoints.push_back(key);
   }
-  // brisk_detector.detect(image, keypoints);
-  brisk::BriskDescriptorExtractor brisk_extractor(true, false,
-  brisk::BriskDescriptorExtractor::briskV2);
+
   brisk_extractor.compute(image, keypoints, descriptors_);
 }
 

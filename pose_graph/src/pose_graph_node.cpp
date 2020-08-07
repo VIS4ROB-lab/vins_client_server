@@ -21,6 +21,7 @@
 #include "pose_graph.h"
 #include "utility/CameraPoseVisualization.h"
 #include "parameters.h"
+#include <chrono>
 #define SKIP_FIRST_CNT 10
 using namespace std;
 
@@ -48,6 +49,9 @@ int DEBUG_IMAGE;
 int VISUALIZE_IMU_FORWARD;
 int LOOP_CLOSURE;
 int FAST_RELOCALIZATION;
+
+int AGENT_ID;
+int NUM_ODOM_CONNECTIONS;
 
 camodocal::CameraPtr m_camera;
 Eigen::Vector3d tic;
@@ -296,12 +300,13 @@ void process()
 {
     if (!LOOP_CLOSURE)
         return;
+    brisk::BriskDescriptorExtractor brisk_extractor(true, false,
+        brisk::BriskDescriptorExtractor::briskV2);
     while (true)
     {
         sensor_msgs::ImageConstPtr image_msg = NULL;
         sensor_msgs::PointCloudConstPtr point_msg = NULL;
         nav_msgs::Odometry::ConstPtr pose_msg = NULL;
-
         // find out the messages with same time stamp
         m_buf.lock();
         if(!image_buf.empty() && !point_buf.empty() && !pose_buf.empty())
@@ -335,7 +340,6 @@ void process()
             }
         }
         m_buf.unlock();
-
         if (pose_msg != NULL)
         {
             //printf(" pose time %f \n", pose_msg->header.stamp.toSec());
@@ -383,6 +387,7 @@ void process()
                                      pose_msg->pose.pose.orientation.x,
                                      pose_msg->pose.pose.orientation.y,
                                      pose_msg->pose.pose.orientation.z).toRotationMatrix();
+
             if((T - last_t).norm() > SKIP_DIS)
             {
                 vector<cv::Point3f> point_3d; 
@@ -411,9 +416,8 @@ void process()
 
                     //printf("u %f, v %f \n", p_2d_uv.x, p_2d_uv.y);
                 }
-
                 KeyFrame* keyframe = new KeyFrame(pose_msg->header.stamp.toSec(), frame_index, T, R, image,
-                                   point_3d, point_2d_uv, point_2d_normal, point_id, sequence);   
+                                   point_3d, point_2d_uv, point_2d_normal, point_id, sequence, brisk_extractor);
                 m_process.lock();
                 start_flag = 1;
                 posegraph.addKeyFrame(keyframe, 1);
@@ -463,8 +467,10 @@ int main(int argc, char **argv)
     n.getParam("visualization_shift_y", VISUALIZATION_SHIFT_Y);
     n.getParam("skip_cnt", SKIP_CNT);
     n.getParam("skip_dis", SKIP_DIS);
+    n.getParam("agent_id", AGENT_ID);
     std::string config_file;
     n.getParam("config_file", config_file);
+    n.getParam("num_odom_connections",NUM_ODOM_CONNECTIONS);
     cv::FileStorage fsSettings(config_file, cv::FileStorage::READ);
     if(!fsSettings.isOpened())
     {

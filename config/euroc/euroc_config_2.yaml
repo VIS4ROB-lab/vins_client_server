@@ -1,9 +1,10 @@
 %YAML:1.0
+# File for agent 2
 
 #common parameters
-imu_topic: "/imu0"
-image_topic: "/cam0/image_raw"
-output_path: "/home/btearle/output/"
+imu_topic: "/imu0_2"
+image_topic: "/cam0_2/image_raw"
+output_path: "/home/btearle/output/2"
 
 #camera calibration 
 model_type: PINHOLE

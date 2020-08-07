@@ -214,7 +214,7 @@ void PoseGraph::addKeyFrame(KeyFrame* cur_kf, bool flag_detect_loop)
   comm_msgs::keyframe keyframe_msg;
   keyframe_msg.header.stamp = time_obj_.fromSec(cur_kf->time_stamp);
   keyframe_msg.frameId = cur_kf->index;
-  keyframe_msg.agentId = 0;
+  keyframe_msg.agentId = AGENT_ID;
 
   nav_msgs::Odometry odom;
   odom.header.stamp = time_obj_.fromSec(cur_kf->time_stamp);
@@ -252,7 +252,7 @@ void PoseGraph::addKeyFrame(KeyFrame* cur_kf, bool flag_detect_loop)
 //    cur_kf->image.rows, cur_kf->image.cols,
 //    cur_kf->image.step.buf[0], cur_kf->image.data);
   list<KeyFrame*>::reverse_iterator rit = keyframelist.rbegin();
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < NUM_ODOM_CONNECTIONS; i++) {
     if (rit == keyframelist.rend())
       break;
 
